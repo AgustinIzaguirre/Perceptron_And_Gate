@@ -11,7 +11,7 @@
 
 numberOfEpocs = 5;
 learningFactor = 0.2;
-Weights = 2 * rand(1, 3) - 1
+Weights = 2 * rand(1, 3) - 1 # Matriz de 1x3 de números entre [-1, 1)
 
 #TrainingInputs = [-1, 1, -1; -1, 1, 1];
 #TrainingOutputs = [-1; 1];
@@ -20,7 +20,7 @@ trainingQuantity = 2;
 
 for epoc = 1 : numberOfEpocs
 	for row = 1 : trainingQuantity
-		Input = [-1; sign(rand() - 0.5); sign(rand() - 0.5)]
+		Input = [-1; sign(rand() - 0.5); sign(rand() - 0.5)] # Umbral más dos inputs de +1 o -1
 		if(Input(2, 1) == 1 && Input(3, 1) == 1)
 			expectedOutput = 1;
 		else
