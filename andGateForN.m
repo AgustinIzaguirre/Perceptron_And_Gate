@@ -9,31 +9,82 @@
 # bias wieght always set to -1
 # 
 
-N = 2
-numberOfEpocs = 5;
-learningFactor = 0.2;
-Weights = 2 * rand(1, N + 1) - 1
+1; #to prevent it from being a function file
 
-#TrainingInputs = [-1, 1, -1; -1, 1, 1];
-#TrainingOutputs = [-1; 1];
-trainingQuantity = 2;
-
-Input = zeros(N + 1, 1);
-Input(1, 1) = -1;
-sum = 0;
-
-for epoc = 1 : numberOfEpocs
-	for row = 1 : trainingQuantity
-		sum = 0;
-		for i = 2 : N + 1
-			Input(i, 1) = sign(rand() - 0.5);
-			sum = sum + Input(i, 1);
+function newVector = shuffle(vector, vectorSize)
+	newVector = vector;
+	for index = 1 : vectorSize
+			newIndex = floor(rand() * vectorSize + 1);
+			aux = newVector(newIndex);
+			newVector(newIndex) = newVector(index);
+			newVector(index) = aux;
 		endfor
+endfunction
+
+function pattern = getPatterns(N)
+	if(N == 2)
+		pattern = [-1, -1,  -1, -1;
+			  		1,  1,  -1, -1;
+			  		1, -1,   1, -1];
+	elseif(N == 3)
+		pattern = [-1, -1,  -1, -1, -1, -1,  -1,  -1;
+			  		1,  1,  -1, -1,  1,  1,  -1,  -1;
+			  		1, -1,   1, -1,  1, -1,   1,  -1;
+			  		1,  1,   1,  1, -1, -1,  -1,  -1];
+	
+	elseif(N == 4)
+		pattern = [-1, -1,  -1, -1, -1, -1,  -1,  -1, -1, -1,  -1, -1, -1, -1,  -1,  -1;
+			  		1,  1,  -1, -1,  1,  1,  -1,  -1,  1,  1,  -1, -1,  1,  1,  -1,  -1;
+			  		1, -1,   1, -1,  1, -1,   1,  -1,  1, -1,   1, -1,  1, -1,   1,  -1;
+			  		1,  1,   1,  1, -1, -1,  -1,  -1,  1,  1,   1,  1, -1, -1,  -1,  -1;
+			  		1,  1,   1,  1,  1,  1,   1,   1, -1, -1,  -1, -1, -1, -1,  -1,  -1];
+	elseif(N == 5)
+		pattern = [-1, -1,  -1, -1, -1, -1,  -1,  -1, -1, -1,  -1, -1, -1, -1,  -1,  -1, -1, -1,  -1, -1, -1, -1,  -1,  -1, -1, -1,  -1, -1, -1, -1,  -1,  -1;
+			  		1,  1,  -1, -1,  1,  1,  -1,  -1,  1,  1,  -1, -1,  1,  1,  -1,  -1,  1,  1,  -1, -1,  1,  1,  -1,  -1,  1,  1,  -1, -1,  1,  1,  -1,  -1;
+			  		1, -1,   1, -1,  1, -1,   1,  -1,  1, -1,   1, -1,  1, -1,   1,  -1,  1, -1,   1, -1,  1, -1,   1,  -1,  1, -1,   1, -1,  1, -1,   1,  -1;
+			  		1,  1,   1,  1, -1, -1,  -1,  -1,  1,  1,   1,  1, -1, -1,  -1,  -1,  1,  1,   1,  1, -1, -1,  -1,  -1,  1,  1,   1,  1, -1, -1,  -1,  -1;
+			  		1,  1,   1,  1,  1,  1,   1,   1, -1, -1,  -1, -1, -1, -1,  -1,  -1,  1,  1,   1,  1,  1,  1,   1,   1, -1, -1,  -1, -1, -1, -1,  -1,  -1;
+			  		1,  1,   1,  1,  1,  1,   1,   1,  1,  1,   1,  1,  1,  1,   1.   1, -1, -1,  -1, -1, -1, -1,  -1,  -1, -1, -1,  -1, -1, -1, -1,  -1,  -1];
+	else
+
+		printf("Invalid parameter: %d\n", N);
+		pattern = zeros(N, N);
+	endif
+endfunction
+
+
+function total = getTotalSum(vector, dim) 
+	total = 0;
+	for i = 1 : dim
+		total = total + vector(i);
+	endfor
+endfunction
+
+###########################################################################################################################################################
+#----------------------------------------->    start of code    <-----------------------------------------#################################################
+
+N 				 = 2
+numberOfEpochs   = 5;
+learningFactor   = 0.2;
+inputSize        = 2 ** N;
+inputOrder	     = 1 : inputSize;
+trainingQuantity = inputSize;
+Patterns 		 = getPatterns(N);
+Weights          = 2 * rand(1, N + 1) - 1
+sum 			 = 0;
+
+for epoch = 1 : numberOfEpochs
+	inputOrder = shuffle(inputOrder, inputSize);
+	for number = 1 : trainingQuantity
+		Input = Patterns(:, number);
+		sum = getTotalSum(Patterns([2 : N + 1], number), N);
+		
 		if(sum == N)
 			expectedOutput = 1;
 		else
 			expectedOutput = -1;
 		endif	
+		
 		output = sign(Weights * Input);
 		
 		if(output != expectedOutput)
@@ -51,18 +102,22 @@ Weights
 printf("Testing with resulting Weights:\n");
 testQuantity = 1000;
 failedTests = 0;
+Input = zeros (N + 1, 1);
+Input(1, 1) = -1;
 
-for row = 1 : testQuantity
+for number = 1 : testQuantity
 	sum = 0;
 	for i = 2 : N + 1
 		Input(i, 1) = sign(rand() - 0.5);
 		sum = sum + Input(i, 1);
 	endfor
+
 	if(sum == N)
 		expectedOutput = 1;
 	else
 		expectedOutput = -1;
 	endif		
+
 	output = sign(Weights * Input);
 	
 	if(output != expectedOutput)
